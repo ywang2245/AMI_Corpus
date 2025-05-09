@@ -140,9 +140,9 @@ def process_temporal_results():
             valence_array = np.array(valence_list)
             arousal_array = np.array(arousal_list)
             
-            # Calculate timestamps (one per chunk)
-            feature_rate = 1  # 1 value per chunk
-            timestamps = np.arange(len(valence_list)) * (chunk_size / 100)  # Time in seconds
+            # Calculate timestamps for 5 minutes
+            total_duration = 5 * 60  # 5 minutes in seconds
+            timestamps = np.linspace(0, total_duration, len(valence_list))
             
             print(f"Number of chunks: {len(valence_list)}")
             print(f"Duration: {timestamps[-1]:.2f} seconds")
@@ -235,10 +235,10 @@ def plot_temporal_results(temporal_data):
         # Set x-axis ticks to show minutes and seconds
         max_time = timestamps[-1]
         if max_time > 60:
-            minutes = int(max_time // 60)
-            seconds = int(max_time % 60)
-            plt.xticks(np.arange(0, max_time + 60, 60), 
-                      [f'{i}:00' for i in range(minutes + 1)])
+            # Create ticks every 30 seconds
+            ticks = np.arange(0, max_time + 30, 30)
+            tick_labels = [f'{int(t//60)}:{int(t%60):02d}' for t in ticks]
+            plt.xticks(ticks, tick_labels)
         else:
             plt.xticks(np.arange(0, max_time + 10, 10))
         

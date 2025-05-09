@@ -14,8 +14,11 @@ class AudioVAExtractor:
         self.segment_duration = segment_duration  # Duration of each segment in seconds
         self.segment_samples = int(segment_duration * sample_rate)
     
-    def extract_features(self, y):
+    def extract_features(self, audio_path):
         """Extract audio features for V-A prediction"""
+        # Load audio file
+        y, sr = librosa.load(audio_path, sr=self.sample_rate)
+        
         # RMS Energy (related to arousal)
         rms = librosa.feature.rms(y=y, hop_length=self.hop_length)[0]
         
@@ -65,7 +68,8 @@ class AudioVAExtractor:
         norm_rms = float(np.mean(rms))
         norm_beat = float(np.mean(beat_strength))
         
-        return {
+        # Return features as a dictionary
+        features = {
             'rms': norm_rms,
             'spectral_centroid': norm_cent,
             'spectral_rolloff': float(np.mean(rolloff)),
@@ -75,6 +79,20 @@ class AudioVAExtractor:
             'tempo': norm_tempo,
             'beat_strength': norm_beat
         }
+        
+        # Convert dictionary values to numpy arrays
+        features_array = np.array([
+            features['rms'],
+            features['spectral_centroid'],
+            features['spectral_rolloff'],
+            features['zero_crossing_rate'],
+            features['tempo'],
+            features['beat_strength'],
+            np.mean(features['mfcc']),
+            np.std(features['mfcc'])
+        ])
+        
+        return features_array
     
     def predict_va(self, features):
         """Predict valence and arousal from audio features"""

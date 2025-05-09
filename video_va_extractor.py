@@ -276,6 +276,72 @@ class EmotionVAExtractor:
         
         plt.show()
 
+    def extract_features(self, video_path):
+        """Extract features from video for V-A prediction"""
+        # Initialize video capture
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Could not open video file: {video_path}")
+        
+        # Get video properties
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        
+        # Initialize lists to store features
+        valence_values = []
+        arousal_values = []
+        
+        # Process every 10th frame
+        frame_idx = 0
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+            
+            if frame_idx % 10 == 0:  # Process every 10th frame
+                # Convert to grayscale for face detection
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                faces = self.face_cascade.detectMultiScale(gray, 1.1, 4)
+                
+                if len(faces) > 0:
+                    # For each face in the frame
+                    frame_valence = []
+                    frame_arousal = []
+                    
+                    for (x, y, w, h) in faces:
+                        face = frame[y:y+h, x:x+w]
+                        # Get V-A values using emotion recognition
+                        valence, arousal = self.get_va_values(face)
+                        frame_valence.append(valence)
+                        frame_arousal.append(arousal)
+                    
+                    # Average V-A values for all faces in this frame
+                    valence_values.append(np.mean(frame_valence))
+                    arousal_values.append(np.mean(frame_arousal))
+            
+            frame_idx += 1
+        
+        cap.release()
+        
+        # If no faces were detected in any frame
+        if not valence_values or not arousal_values:
+            print(f"Warning: No faces detected in video {video_path}")
+            return np.zeros(8)  # Return zero features
+        
+        # Calculate statistical features
+        features = np.array([
+            np.mean(valence_values),  # Mean valence
+            np.std(valence_values),   # Std valence
+            np.mean(arousal_values),  # Mean arousal
+            np.std(arousal_values),   # Std arousal
+            np.max(valence_values),   # Max valence
+            np.min(valence_values),   # Min valence
+            np.max(arousal_values),   # Max arousal
+            np.min(arousal_values)    # Min arousal
+        ])
+        
+        return features
+
 def process_single_video(video_path, sample_rate=5):
     """
     Process a single video and analyze emotional changes

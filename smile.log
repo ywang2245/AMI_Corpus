@@ -1,0 +1,18 @@
+[ 09.05.2025 - 10:47:09 ]
+    (MSG) [2] SMILEapi: openSMILE starting!
+[ 09.05.2025 - 10:47:09 ]
+    (MSG) [2] SMILEapi: config file is: /Users/yuwang/Documents/GitHub/AMI_Corpus_Updated/AMI_Corpus/.venv/lib/python3.9/site-packages/opensmile/core/config/egemaps/v01a/eGeMAPSv01a.conf
+[ 09.05.2025 - 10:47:09 ]
+    (MSG) [2] cComponentManager: successfully registered 102 component types.
+[ 09.05.2025 - 10:47:09 ]
+    (MSG) [2] instance 'gemapsv01a_logSpectral': logSpecFloor = -140.00  (specFloor = 1.000000e-14)
+[ 09.05.2025 - 10:47:09 ]
+    (MSG) [2] instance 'egemapsv01a_logSpectral_flux': logSpecFloor = -140.00  (specFloor = 1.000000e-14)
+[ 09.05.2025 - 10:47:09 ]
+    (WRN) [1] instance 'gemapsv01a_formantLpc': minF and maxF should be set above zero and below Nyquist frequency (5500.000000Hz) to ensure numerical stability.
+[ 09.05.2025 - 10:47:09 ]
+    (MSG) [2] cComponentManager: successfully finished createInstances (71 component instances were finalised, 1 data memories were finalised)
+[ 09.05.2025 - 10:47:09 ]
+    (MSG) [2] cComponentManager: starting single thread processing loop
+[ 09.05.2025 - 10:47:09 ]
+    (MSG) [2] cComponentManager: Processing finished! System ran for 6 ticks.
