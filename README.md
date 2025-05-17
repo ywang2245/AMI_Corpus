@@ -1,192 +1,245 @@
-# MultiModal Transformer for Emotion Analysis
+# AMI Corpus MulT Model
 
-This project implements a Transformer-based multimodal emotion analysis model for processing audio and video data to predict valence and arousal values.
+This project uses a Multi-modal Transformer (MulT) model to analyze audio and video recordings from the AMI Corpus to detect and evaluate participants' emotional states.
 
-## Table of Contents
-- [Overview](#overview)
-- [Model Architecture](#model-architecture)
-- [Installation](#installation)
-- [Data Processing](#data-processing)
-- [Training](#training)
-- [Results](#results)
-- [Future Work](#future-work)
+## Project Overview
 
-## Overview
+The AMI Corpus MulT model combines audio and video features, extracts cross-modal features through a transformer architecture, and outputs participants' emotional valence and arousal values. The model uses OpenFace for video feature extraction, OpenSMILE for audio feature extraction, trains a multi-modal transformer model with these features, and ultimately generates an emotion analysis report.
 
-The project focuses on emotion analysis using both audio and video inputs through a sophisticated transformer-based architecture. It processes multimodal data to predict emotional valence and arousal values.
+## Project Structure
 
-### Key Features
-- Multimodal transformer architecture
-- Audio and video feature extraction
-- End-to-end training pipeline
-- Real-time processing capability
-- Comprehensive evaluation metrics
-
-## Model Architecture
-
-### Core Components
-
-1. **MultiHeadAttention**
-   - Custom implementation of multi-head attention mechanism
-   - Scaled dot-product attention
-   - Configurable number of attention heads
-   - Dropout for regularization
-
-2. **TransformerEncoder**
-   - Multi-head self-attention layer
-   - Feed-forward network
-   - Layer normalization
-   - Residual connections
-
-3. **MultiModalTransformer**
-   - Separate processing branches for audio and video
-   - Cross-modal attention mechanism
-   - Dual output heads for valence and arousal prediction
-   - Batch normalization for training stability
-
-### Model Parameters
-```python
-- hidden_dim: 256
-- num_heads: 8
-- num_layers: 4
-- dropout: 0.1
-- max_seq_len: 1000
+```
+AMI_Corpus/
+├── ES2016a/                   # ES2016a meeting data directory
+│   ├── Audios/                # Audio recordings
+│   └── Videos/                # Video recordings
+├── ES2016_video_audio_pair.xlsx # Audio and video pairing information
+├── analysis_results/          # Generated analysis results
+├── extracted_features/        # Extracted audio and video features
+├── run_all.py                 # Script to run all main tools
+├── models/                    # Directory for pre-trained model files
+└── src/                       # Source code
+    ├── extractors/            # Feature extraction implementations
+    │   ├── __init__.py        # Package initialization file
+    │   ├── openface_extractor.py  # Video feature extraction using OpenFace
+    │   └── opensmile_extractor.py # Audio feature extraction using OpenSMILE
+    ├── models/                # Model implementations
+    │   ├── __init__.py        # Package initialization file
+    │   ├── dataset.py         # Dataset loading utilities
+    │   └── multit_model.py    # MulT model implementation
+    ├── utils/                 # Utility functions
+    │   ├── __init__.py        # Package initialization file
+    │   ├── config.py          # Configuration settings
+    │   └── download_models.py # Script to download required models
+    ├── __init__.py            # Package initialization file
+    ├── analyze_es2016a.py     # Analysis script
+    ├── process_es2016a.py     # Feature extraction script
+    ├── process_features.py    # Additional feature processing
+    ├── requirements.txt       # Required packages
+    ├── test_model_load.py     # Model loading test script
+    └── train.py               # Training script
 ```
 
-## Installation
+## File Descriptions
+
+### Core Scripts
+
+- **run_all.py**: Command-line tool to run all main functions. Supports four main commands: `extract`, `train`, `analyze`, and `test_model`.
+
+### src/extractors/
+
+- **openface_extractor.py**: Implements the `OpenFaceExtractor` class for extracting facial features from videos, including facial landmarks, face descriptors, eye and mouth aspect ratios, and head pose.
+  
+- **opensmile_extractor.py**: Implements the `OpenSMILEExtractor` class for extracting acoustic features from audio, such as pitch, energy, MFCCs, etc.
+
+### src/models/
+
+- **multit_model.py**: Implements the `MultiModalTransformer` class, the core model of this project. It uses a multi-head attention mechanism to process and fuse audio and video features, and predicts valence and arousal values.
+
+- **dataset.py**: Implements the `MultiModalDataset` class for loading and preprocessing multi-modal data.
+
+### src/utils/
+
+- **config.py**: Contains the `ModelConfig` class for model configuration and training parameters.
+
+- **download_models.py**: Script for downloading required pre-trained model files (such as the dlib facial landmark detector).
+
+### Main Functional Scripts
+
+- **process_es2016a.py**: Processes ES2016a meeting videos and audios, extracts features using OpenFace and OpenSMILE, and saves them to JSON files.
+
+- **train.py**: Script for training the MulT model, including data loading, model initialization, training loop, and validation.
+
+- **analyze_es2016a.py**: Analyzes extracted features, generates emotion analysis reports, creates emotion charts, and summarizes statistics using the trained MulT model.
+
+- **test_model_load.py**: Tests the model loading functionality, ensuring the model can be correctly loaded and used for inference.
+
+## Installation and Setup
+
+1. Clone this repository
+```bash
+git clone <repository-url>
+cd AMI_Corpus
+```
+
+2. Create a virtual environment (optional but recommended)
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# or
+.venv\Scripts\activate     # Windows
+```
+
+3. Install dependencies
+```bash
+pip install -r src/requirements.txt
+```
+
+4. Download required models
+```bash
+python src/utils/download_models.py
+```
+
+## Detailed Workflow
+
+### 1. Data Preparation
+
+The project uses ES2016a meeting data from the AMI Corpus, including video and audio recordings. These files should be placed in the appropriate subdirectories under the `ES2016a/` directory. The `ES2016_video_audio_pair.xlsx` file defines the pairing relationship between audio and video files.
+
+### 2. Feature Extraction
+
+The feature extraction process extracts facial features from videos using OpenFace and acoustic features from audio using OpenSMILE.
 
 ```bash
-# Clone the repository
-git clone [repository-url]
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # For Unix
-venv\Scripts\activate     # For Windows
-
-# Install dependencies
-pip install -r requirements.txt
+python run_all.py extract
 ```
 
-## Data Processing
+This command executes the following steps:
+1. Loads pairing information from `ES2016_video_audio_pair.xlsx`
+2. For each pair of video and audio files:
+   - Extracts video features using OpenFace, including facial landmarks, face descriptors, etc.
+   - Extracts audio features using OpenSMILE, such as spectral features, pitch, energy, etc.
+3. Saves the extracted features to the `extracted_features/` directory
 
-### Audio Processing
-- Sampling rate: 16000Hz
-- Feature extraction using MelSpectrogram
-- Features include:
-  - RMS energy
-  - Spectral centroid
-  - Spectral rolloff
-  - Zero-crossing rate
-  - MFCC coefficients
-  - Rhythm features
+The extracted features are stored in JSON format files for subsequent processing.
 
-### Video Processing
-- Frame rate: 25fps
-- Resolution: 224x224
-- Color space: RGB
-- Normalization: pixel values scaled to [0,1]
+### 3. Model Training
 
-## Training
+Model training uses the extracted features to train the MulT model.
 
-### Configuration
-```python
-optimizer = optim.AdamW(
-    model.parameters(),
-    lr=config.learning_rate,
-    weight_decay=config.weight_decay
-)
-
-scheduler = optim.lr_scheduler.OneCycleLR(
-    optimizer,
-    max_lr=config.learning_rate,
-    epochs=config.num_epochs,
-    steps_per_epoch=len(train_loader),
-    pct_start=0.1
-)
-
-criterion = nn.MSELoss()
+```bash
+python run_all.py train
 ```
 
-### Training Strategy
-- Dataset split: 80% training, 20% validation
-- Early stopping mechanism
-- Gradient clipping
-- Learning rate warmup
-- Model checkpoint saving
+This command executes the following steps:
+1. Loads the extracted feature data
+2. Splits the dataset into training and validation sets
+3. Initializes the MulT model
+4. Sets up the optimizer, learning rate scheduler, and loss function
+5. Trains the model, including:
+   - Training and validation for each epoch
+   - Recording training and validation losses
+   - Saving the best model
+   - Implementing early stopping
+6. Saves the trained model to the `MulT/MulT/checkpoints/` directory
 
-## Results
+### 4. Emotion Analysis
 
-### Training Performance
+Emotion analysis uses the trained model to analyze the emotional states of participants in the ES2016a meeting.
+
+```bash
+python run_all.py analyze
 ```
-Epoch 1: Train Loss = 0.6132, Val Loss = 0.3909
-Epoch 2: Train Loss = 0.5541, Val Loss = 0.3943
-Epoch 3: Train Loss = 0.5954, Val Loss = 0.3863
-Epoch 4: Train Loss = 0.5857, Val Loss = 0.3915
-Epoch 5: Train Loss = 0.5778, Val Loss = 0.3934
-Epoch 6: Train Loss = 0.5660, Val Loss = 0.4106
-Epoch 7: Train Loss = 0.5491, Val Loss = 0.4153
-Epoch 8: Train Loss = 0.5364, Val Loss = 0.4213
+
+This command executes the following steps:
+1. Loads the trained MulT model
+2. For each pair of video and audio features:
+   - Uses the model for emotion prediction (generating valence and arousal values)
+   - Creates emotion change charts
+   - Calculates overall emotion statistics
+3. Generates an emotion analysis report, including:
+   - A summary table of participants' emotion analysis
+   - Detailed analysis for each participant, including charts and text descriptions
+4. Saves the results to the `analysis_results/` directory
+
+### 5. Model Testing
+
+Model testing ensures that the model can be correctly loaded and used for inference.
+
+```bash
+python run_all.py test_model
 ```
 
-### Analysis
-- Training loss shows consistent improvement
-- Early stopping triggered at epoch 8
-- Best model checkpoints saved at epochs 1 and 3
+This command loads the trained model and tests inference using random input data to verify that the model functions correctly.
 
-## Future Work
+## Usage Examples
 
-### Planned Improvements
-1. **Data Augmentation**
-   - Audio: noise addition, time stretching
-   - Video: random cropping, flipping, color jittering
+### Complete Workflow
 
-2. **Model Optimization**
-   - Increased regularization
-   - Adjusted dropout rates
-   - Cross-validation implementation
+For a complete workflow, execute the following commands in sequence:
 
-3. **Architecture Enhancements**
-   - Additional residual connections
-   - Deeper feature extraction
-   - Optimized attention mechanisms
+```bash
+# 1. Download required models
+python src/utils/download_models.py
 
-4. **Training Strategies**
-   - Progressive learning
-   - Advanced learning rate scheduling
-   - Enhanced data sampling
+# 2. Extract features
+python run_all.py extract
 
-### Research Directions
-1. **Advanced Architecture**
-   - Alternative attention mechanisms
-   - Different fusion strategies
-   - Various backbone networks
+# 3. Train the model
+python run_all.py train
 
-2. **Data Processing**
-   - Advanced preprocessing techniques
-   - Real-time augmentation
-   - Enhanced feature extraction
+# 4. Analyze emotions
+python run_all.py analyze
 
-3. **Performance Optimization**
-   - Model quantization
-   - Model pruning
-   - Knowledge distillation
+# 5. Test the model (optional)
+python run_all.py test_model
+```
 
-4. **Applications**
-   - Real-time processing
-   - Domain adaptation
-   - Practical use cases
+### Analyzing Existing Data Only
 
-## Contributing
+If you already have extracted features and a trained model, and only want to perform analysis:
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+```bash
+python run_all.py analyze
+```
 
-## License
+## Interpreting Analysis Results
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+Analysis results are located in the `analysis_results/` directory, including:
 
-## Acknowledgments
+1. **JSON files**: Containing raw emotion prediction data
+2. **PNG images**: Showing changes in emotional valence and arousal over time, as well as emotion quadrant distribution
+3. **Markdown report**: Generated emotion analysis report, including:
+   - A summary table of all participants' emotions
+   - Detailed emotion analysis for each participant
+   - Emotion change charts
 
-- AMI Corpus for providing the multimodal dataset
-- PyTorch team for the deep learning framework
-- Contributors and researchers in the field of emotion analysis
+Emotions are represented by two dimensions:
+- **Valence**: Indicates the positivity/negativity of the emotion (range: 0-1)
+- **Arousal**: Indicates the activeness/calmness of the emotion (range: 0-1)
+
+These two dimensions combine to form four emotion quadrants:
+- **Positive Active**: High valence, high arousal (e.g., excited, happy)
+- **Positive Passive**: High valence, low arousal (e.g., calm, satisfied)
+- **Negative Active**: Low valence, high arousal (e.g., angry, anxious)
+- **Negative Passive**: Low valence, low arousal (e.g., sad, tired)
+
+## Troubleshooting
+
+1. **Feature Extraction Failures**:
+   - Ensure dlib model files have been downloaded to the correct location
+   - Check if video/audio file paths are correct
+   - Verify that OpenCV and dlib are installed correctly
+
+2. **Model Training Errors**:
+   - Ensure features have been extracted correctly
+   - Check if GPU memory is sufficient (if applicable)
+   - Reduce batch size or model dimensions
+
+3. **Analysis Report Generation Issues**:
+   - Ensure the model has been trained and saved
+   - Verify that the `analysis_results` directory exists and is writable
+
+4. **Dependency Package Installation Issues**:
+   - For dlib installation issues, CMake and a C++ compiler may need to be installed first on some systems
+   - For OpenCV issues, try `pip install opencv-python-headless` as an alternative

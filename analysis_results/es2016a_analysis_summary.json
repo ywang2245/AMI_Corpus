@@ -1,0 +1,30 @@
+[
+  {
+    "role": "project manager",
+    "avg_valence": 0.6004017534917289,
+    "avg_arousal": 0.7574446453665294,
+    "quadrant": "Positive Active",
+    "emotion_variability": 0.01474460475350085
+  },
+  {
+    "role": "industrial designer",
+    "avg_valence": 0.5771857900341062,
+    "avg_arousal": 0.7563469296824323,
+    "quadrant": "Positive Active",
+    "emotion_variability": 0.012294927856185751
+  },
+  {
+    "role": "user interface designer",
+    "avg_valence": 0.5770621103961973,
+    "avg_arousal": 0.7567332395671929,
+    "quadrant": "Positive Active",
+    "emotion_variability": 0.010131162941217787
+  },
+  {
+    "role": "marketing expert",
+    "avg_valence": 0.5749475607906815,
+    "avg_arousal": 0.7540873785088532,
+    "quadrant": "Positive Active",
+    "emotion_variability": 0.013713098217709784
+  }
+]

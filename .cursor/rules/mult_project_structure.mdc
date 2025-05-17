@@ -1,0 +1,46 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# MulT Emotion Analysis Project Structure and Workflow
+
+This document outlines the structure and workflow for the Multimodal Transformer (MulT) project, focusing on emotion analysis using the AMI Corpus with OpenFace and OpenSMILE for feature extraction.
+
+## Core Goal
+The primary goal is to perform emotion analysis (predicting valence and arousal) by processing multimodal (audio and video) data. The current pipeline emphasizes robust feature extraction using specialized toolkits.
+
+## Key Files and Directories
+
+### 1. Documentation & Setup
+- **`[MulT/README.md](mdc:MulT/README.md)`**: The main documentation file. It provides an overview, setup instructions, and usage guidelines for the entire project.
+- **`[MulT/requirements.txt](mdc:MulT/requirements.txt)`**: Lists all Python dependencies required to run the project.
+
+### 2. Feature Extraction
+- **`[MulT/openface_extractor.py](mdc:MulT/openface_extractor.py)`**: Implements video feature extraction using OpenFace 2.0. It extracts facial landmarks, face descriptors, eye/mouth aspect ratios, and head pose.
+- **`[MulT/opensmile_extractor.py](mdc:MulT/opensmile_extractor.py)`**: Implements audio feature extraction using OpenSMILE. It utilizes the eGeMAPSv01a feature set, which is optimized for emotion recognition.
+- **`[MulT/download_models.py](mdc:MulT/download_models.py)`**: A utility script to download the necessary pre-trained model files for OpenFace (e.g., shape predictor, face recognition model).
+- **`[MulT/process_features.py](mdc:MulT/process_features.py)`**: The main script to run the feature extraction pipeline. It processes specified audio-video pairs, uses the OpenFace and OpenSMILE extractors, and saves the extracted features.
+- **`MulT/models/`**: This directory stores the downloaded OpenFace model files required by `[MulT/openface_extractor.py](mdc:MulT/openface_extractor.py)`.
+- **`MulT/extracted_features/`**: This directory is the default output location for features extracted by `[MulT/process_features.py](mdc:MulT/process_features.py)`. It typically contains subdirectories for `audio_features` and `video_features`, with features saved in JSON format.
+
+### 3. Dataset and Model
+- **`[MulT/dataset.py](mdc:MulT/dataset.py)`**: Contains the `MultiModalDataset` class. This class is responsible for loading the pre-extracted audio and video features from the `MulT/extracted_features/` directory and preparing them (e.g., padding, converting to tensors) for input into the MulT model.
+- **`[MulT/multit_model.py](mdc:MulT/multit_model.py)`**: Implements the core Multimodal Transformer (MulT) architecture. This includes the individual modality encoders, cross-modal attention mechanisms, and the final prediction layers for valence and arousal.
+
+## Workflow Overview
+
+1.  **Setup**:
+    *   Install all dependencies listed in `[MulT/requirements.txt](mdc:MulT/requirements.txt)`.
+2.  **Download Models**:
+    *   Run `[MulT/download_models.py](mdc:MulT/download_models.py)` to fetch the OpenFace pre-trained models and store them in the `MulT/models/` directory.
+3.  **Feature Extraction**:
+    *   Configure the audio-video pairs in `[MulT/process_features.py](mdc:MulT/process_features.py)`.
+    *   Run `[MulT/process_features.py](mdc:MulT/process_features.py)` to extract features using OpenFace and OpenSMILE. The output will be saved in `MulT/extracted_features/`.
+4.  **Data Loading**:
+    *   Use the `MultiModalDataset` class in `[MulT/dataset.py](mdc:MulT/dataset.py)` to load and preprocess the extracted features from the JSON files.
+5.  **Model Training/Inference**:
+    *   Initialize the `MultiModalTransformer` from `[MulT/multit_model.py](mdc:MulT/multit_model.py)`.
+    *   Use the prepared dataset to train the model or run inference to get emotion predictions (valence and arousal).
+
+This rule should provide a good overview when working with the MulT project.

@@ -1,4 +1,39 @@
+# Large feature files
+extracted_features/audio_features/*.json
+extracted_features/video_features/*.json
+
+# Python virtual environment
 .venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Audio/Video data
+*.mp4
+*.wav
+*.mp3
+*.avi
+
+# Model files (might be large)
+*.bz2
+
+# Log files
+*.log
+logs/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
 checkpoints/
 *.pt
 *.dylib
